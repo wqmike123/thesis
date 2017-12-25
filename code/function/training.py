@@ -17,20 +17,24 @@ class trainTool(object):
     
     
     @staticmethod
-    def prepareTokenData(name ='vixPred_data' ,isHead = True,save=True):
-        data = textTool.loadData('./temp_res/data.pickle')
-        
-        res = []
-        if isHead:
-            content = 'head'
-        else:
-            content = 'summary'
-        for isample in data[content]:
-            if not isinstance(isample,str):
-                res.append([])
-                continue
-            res.append(textTool.sentence2list(isample.lower(),tokenTool='unitok'))
-        data['token'] = res
+    def prepareTokenData(name ='vixPred_data' ,full = True,isHead = True,save=True):
+        datalist = [textTool.loadData('./temp_res/data.pickle')]
+        if full:
+            data2 = textTool.loadData('temp_res/vixPred_data1116.pickle').reset_index()
+            datalist.append(data2)
+        for data in datalist:
+            res = []
+            if isHead:
+                content = 'head'
+            else:
+                content = 'summary'
+            for isample in data[content]:
+                if not isinstance(isample,str):
+                    res.append([])
+                    continue
+                res.append(textTool.sentence2list(isample.lower(),tokenTool='unitok'))
+            data2['token'] = res
+        data = pd.concat(data,axis=0)
         if save:
             #data.token.apply(len).max()#27
         
@@ -112,7 +116,7 @@ class trainTool(object):
     def prepareWSJNews(cwd,file = 'vixPred_data',length = 'full',maxlen = 31):
         data = textTool.loadData(cwd+'/temp_res/'+file+'.pickle')
         if length == 'full':
-            data2 = textTool.loadData(cwd+'/temp_res/vixPred_data1116.pickle').reset_index()
+            data2 = textTool.loadData(cwd+'/temp_res/'+file+'_full.pickle').reset_index()
             data = pd.concat([data,data2],axis=0)
         data.date = data.date.dt.date
         data = data.set_index('date')

@@ -37,9 +37,9 @@ from training import *
 #data.date = data.date.dt.date
 #data = data.set_index('date')
 cwd = os.getcwd()
-W,news = trainTool.prepareWSJNews(cwd,length = 'full')
-news = trainTool.resample(news,lag = False)
-target,label = trainTool.prepareVIX(cwd,isClass=True,threshold=0.03,lag = 0,freq='W')
+W,news = trainTool.prepareWSJNews(cwd,file='vixPred_data_summary',length = 'full')
+#news = trainTool.resample(news,lag = False)
+target,label = trainTool.prepareVIX(cwd,isClass=True,threshold=0.03,lag = 0)
 #%%
 #from tensorflow.python.client import device_lib
 #
