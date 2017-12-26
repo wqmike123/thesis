@@ -37,7 +37,7 @@ from training import *
 #data.date = data.date.dt.date
 #data = data.set_index('date')
 cwd = os.getcwd()
-W,news = trainTool.prepareWSJNews(cwd,file='vixPred_data_summary',length = 'full')
+W,news = trainTool.prepareWSJNews(cwd,file='vixPred_data_summary',length = 'full',maxlen=60)
 #news = trainTool.resample(news,lag = False)
 target,label = trainTool.prepareVIX(cwd,isClass=True,threshold=0.03,lag = 0)
 #%%
@@ -48,9 +48,10 @@ target,label = trainTool.prepareVIX(cwd,isClass=True,threshold=0.03,lag = 0)
 #    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 #%%
 logDir = './temp_res/log/'
+_state_dim = 128
 # clip value should be scaled or to predict return instead
 sess = tf.Session()
-model = vixClassify_cnn(31,len(W),embedweight = W.astype(np.float32),trainable = False,lstm_units=256,learning_rate = 0.01,event_embedding=300,pred_dense_dim=128)#,clipvalue=5)
+model = vixClassify_cnn(60,len(W),embedweight = W.astype(np.float32),trainable = False,lstm_units=256,learning_rate = 0.01,event_embedding=100,predict_state_dim=_state_dim,pred_dense_dim=128)#,clipvalue=5)
 sess.run(tf.initialize_all_variables())
 train_writer = tf.summary.FileWriter(logDir + '/tb/cnn/train',sess.graph)
 aux_writer_acc = tf.summary.FileWriter(logDir + '/tb/cnn/train/acc')
@@ -60,8 +61,8 @@ saver = tf.train.Saver()
 epoch = 80
 split_date = pd.to_datetime('2015-01-01').date()
 np.random.seed(17)
-state_cell_init = np.random.randn(300).astype(np.float32)
-state_hidden_init = np.random.randn(300).astype(np.float32)
+state_cell_init = np.random.randn(_state_dim).astype(np.float32)
+state_hidden_init = np.random.randn(_state_dim).astype(np.float32)
 res = []
 glb_step = 0
 y = 0
@@ -84,6 +85,7 @@ for ct in range(epoch):#,epoch+60):
               model.inputs: x,
               model.y: y, # [y]
               model.dropout: 0.6,
+              model.dropout_event:0.8,
               model.state_cell:state_cell,
               model.state_hidden:state_hidden
             }

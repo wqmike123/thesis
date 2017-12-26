@@ -172,3 +172,7 @@ class trainTool(object):
         news.index = news.date
         news = news.drop('date',axis=1)
         return news
+
+    @staticmethod
+    def prepareFakeData():
+        
