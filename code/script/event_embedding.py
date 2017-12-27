@@ -28,13 +28,13 @@ logDir = './temp_res/log/'
 sess = tf.Session()
 model = vixClassify_cnn(27,len(W),embedweight = W.astype(np.float32),trainable = False,lstm_units=512,learning_rate = 0.01,event_embedding=600,pred_dense_dim=64)#,clipvalue=5)
 saver = tf.train.Saver()
-saver.restore(sess,"./temp_res/log/model_cnn65/model_cnn.ckpt")
+saver.restore(sess,"./temp_res/log/model_cnn60/model_cnn.ckpt")
 
 #%%
 
 np.random.seed(17)
-state_cell = np.random.randn(300).astype(np.float32)
-state_hidden = np.random.randn(300).astype(np.float32)
+state_cell = np.random.randn(128).astype(np.float32)
+state_hidden = np.random.randn(128).astype(np.float32)
 last_date = pd.to_datetime('2006-01-01').date()
 news_embedding_list = []
 state_hidden_list = [state_hidden]
@@ -43,9 +43,10 @@ acc_count = 0.
 tot_count = 0.
 news_list = []
 for i,idate in enumerate(target.index):
-    x = np.vstack(news[np.logical_and(news.index>=last_date,news.index<idate)].news.values).astype(np.float32)
+    x = news[np.logical_and(news.index>=last_date,news.index<idate)].news.values
     if len(x)==0:
-        continue
+        continue    
+    x = np.vstack(x).astype(np.float32)
     news_list.append(x)
     feed_dict = {
           model.inputs: x,
@@ -86,6 +87,6 @@ knn = kn.find_neighbor(1)
 #textTool.saveData(att_W,'./temp_res/att_Wvix_week.pickle')
 
 #att = attentionRank(news_embedding_list,att_W,state_hidden_list[:-1],news_list)
-resNews = att.compAttention(10,False)
-print(resNews.query('score>0').sort_values(by='score'))
+resNews = att.compAttention(111,True)
+print(resNews.query('score>0').sort_values(by='score',ascending = False))
  

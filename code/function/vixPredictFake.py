@@ -182,12 +182,15 @@ class vixPredict_cnn:
             alpha = tf.matmul(tf.matmul(self.news_embedding,attention_W),tf.expand_dims(self.state_hidden,axis=1))
             scale_alpha = tf.nn.softmax(alpha,dim=0)
             news_input = tf.reduce_sum(tf.multiply(self.news_embedding,scale_alpha),axis=0)
-            lstm = tf.contrib.rnn.BasicLSTMCell(predict_state_dim,forget_bias=1.0)
-            output_pred,state = lstm(tf.expand_dims(news_input,axis=0),
-                                                  (tf.expand_dims(self.state_cell,axis=0),(tf.expand_dims(self.state_hidden,axis=0))))
-            output_pred_drop = tf.nn.dropout(output_pred,self.dropout)            
-            pred_dense = tf.layers.dense(output_pred_drop,pred_dense_dim,tf.nn.relu)
-            self.price = tf.squeeze(tf.layers.dense(pred_dense,target_dim),axis=1)
+            #lstm = tf.contrib.rnn.BasicLSTMCell(predict_state_dim,forget_bias=1.0)
+            #output_pred,state = lstm(tf.expand_dims(news_input,axis=0),
+            #                                      (tf.expand_dims(self.state_cell,axis=0),(tf.expand_dims(self.state_hidden,axis=0))))
+            #output_pred_drop = tf.nn.dropout(output_pred,self.dropout)
+            
+            pred_dense1 = tf.layers.dense(news_input,lstm_units,tf.nn.relu)
+            pred_dense2 = tf.layers.dense(pred_dense1,pred_dense_dim,tf.nn.relu)
+            output_pred_drop = tf.nn.dropout(pred_dense2,self.dropout)
+            self.price = tf.squeeze(tf.layers.dense(output_pred_drop,target_dim),axis=1)
         self.loss_op = tf.losses.mean_squared_error(self.y, self.price)#absolute_difference
         optimizer =  tf.train.GradientDescentOptimizer(learning_rate = learning_rate)#RMSPropOptimizer(learning_rate,decay = decay_rate,momentum = momentum,epsilon = epsilon)
         gradients, variables = zip(*optimizer.compute_gradients(self.loss_op))
@@ -297,11 +300,14 @@ class vixClassify_cnn:
             alpha = tf.matmul(tf.matmul(self.news_embedding,attention_W),tf.expand_dims(self.state_hidden,axis=1))
             scale_alpha = tf.nn.softmax(alpha,dim=0)
             news_input = tf.reduce_sum(tf.multiply(self.news_embedding,scale_alpha),axis=0)
-            lstm = tf.contrib.rnn.BasicLSTMCell(predict_state_dim,forget_bias=1.0)
-            output_pred,state = lstm(tf.expand_dims(news_input,axis=0),
-                                                  (tf.expand_dims(self.state_cell,axis=0),(tf.expand_dims(self.state_hidden,axis=0))))
-            output_pred_drop = tf.nn.dropout(output_pred,self.dropout)
-            #pred_dense = tf.layers.dense(output_pred,pred_dense_dim,tf.nn.relu)
+            #lstm = tf.contrib.rnn.BasicLSTMCell(predict_state_dim,forget_bias=1.0)
+            #output_pred,state = lstm(tf.expand_dims(news_input,axis=0),
+            #                                      (tf.expand_dims(self.state_cell,axis=0),(tf.expand_dims(self.state_hidden,axis=0))))
+            #output_pred_drop = tf.nn.dropout(output_pred,self.dropout)
+            
+            pred_dense1 = tf.layers.dense(news_input,lstm_units,tf.nn.relu)
+            pred_dense2 = tf.layers.dense(pred_dense1,pred_dense_dim,tf.nn.relu)
+            output_pred_drop = tf.nn.dropout(pred_dense2,self.dropout)
             self.price = tf.layers.dense(output_pred_drop,target_dim)
         self.loss_op = tf.squeeze(tf.nn.softmax_cross_entropy_with_logits(labels = self.y,logits= self.price))
         optimizer =  tf.train.RMSPropOptimizer(learning_rate,decay = decay_rate,momentum = momentum,epsilon = epsilon)#tf.train.GradientDescentOptimizer(learning_rate = learning_rate)#
