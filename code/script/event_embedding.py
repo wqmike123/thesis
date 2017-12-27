@@ -33,8 +33,8 @@ saver.restore(sess,"./temp_res/log/model_cnn65/model_cnn.ckpt")
 #%%
 
 np.random.seed(17)
-state_cell = np.random.randn(300).astype(np.float32)
-state_hidden = np.random.randn(300).astype(np.float32)
+state_cell = np.random.randn(128).astype(np.float32)
+state_hidden = np.random.randn(128).astype(np.float32)
 last_date = pd.to_datetime('2006-01-01').date()
 news_embedding_list = []
 state_hidden_list = [state_hidden]
@@ -76,7 +76,7 @@ for i,idate in enumerate(target.index):
 #kn = newsKneighbor(news_list,news_embedding_list)
 #textTool.saveData(kn.event,'./temp_res/kn_event_vix_week.pickle')
 #textTool.saveData(kn.news,'./temp_res/kn_news_vix_week.pickle')
-kn = newsKneighbor(restore=True,saveDir_news='./temp_res/kn_news_vixfull.pickle')#
+#kn = newsKneighbor(restore=True,saveDir_news='./temp_res/kn_news_vixfull.pickle')#
 knn = kn.find_neighbor(1)
 
 #%%
@@ -86,6 +86,6 @@ knn = kn.find_neighbor(1)
 #textTool.saveData(att_W,'./temp_res/att_Wvix_week.pickle')
 
 #att = attentionRank(news_embedding_list,att_W,state_hidden_list[:-1],news_list)
-resNews = att.compAttention(10,False)
-print(resNews.query('score>0').sort_values(by='score'))
+resNews = att.compAttention(123,False)
+print(resNews.sort_values(by='score',ascending=False))
  
