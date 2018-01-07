@@ -217,4 +217,29 @@ class trainTool(object):
             return W,news,target,label
         else:
             return W,news,target
-        
+    @staticmethod
+    def shuffle(dataList,seed = 17):
+        n = len(dataList[0])
+        np.random.seed(seed)
+        rn = np.arange(n)
+        np.random.shuffle(rn)
+        for i,idata in enumerate(dataList):
+            dataList[i] = np.array([idata[j] for j in rn])
+        return dataList
+    @staticmethod
+    def batch(dataList,batchsize):
+        n = len(dataList[0])
+        resList = [[] for i in range(n)]
+        nbatch = int(n/batchsize) + 1
+        for i,idata in enumerate(dataList):
+            for step in range(nbatch):
+                offset = (step * batchsize)
+                data = idata[offset:offset+batchsize,:]
+                resList[i].append(data)
+        return resList
+    
+    @staticmethod
+    def cosine(y_true, y_pred):
+        y_true = y_true.reshape(-1)
+        y_pred = y_pred.reshape(-1)
+        return np.sum(np.dot(y_true,y_pred))/np.sqrt(np.sum(np.square(y_true)))/np.sqrt(np.sum(np.square(y_pred)))

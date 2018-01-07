@@ -7,13 +7,12 @@ Created on Fri Dec  1 12:04:15 2017
 
 import tensorflow as tf
 
-
 #%%
 
 maxlen = 30
 max_voc = 1000
 embedding_dims = 300
-event_embedding = 500
+event_embedding = 2
 filter_sizes = [3,4,5]
 num_filters = 2
 predict_state_dim = 300
@@ -31,7 +30,8 @@ trainable=True
 g_1 = tf.Graph()
 with g_1.as_default() as gf:
     inp = tf.placeholder(tf.int64, [None, maxlen])
-    dropout = tf.placeholder(tf.float64,shape={})
+    outputAux = tf.placeholder(tf.float32,[None,target_dim],name = 'output_auxiliary')
+    dropout = tf.placeholder(tf.float32,shape={})
     y = tf.placeholder(tf.float32, [target_dim])
     state_cell = tf.placeholder(tf.float32,[predict_state_dim])
     state_hidden = tf.placeholder(tf.float32,[predict_state_dim])
